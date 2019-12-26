@@ -43,7 +43,7 @@ class SquareWorld(object):
         center_x, center_y = int(self.len_x/2), int(self.len_y/2)
         ymask, xmask = np.ogrid[0:self.len_y, 0:self.len_y]
 
-        outter_rad = 6
+        outter_rad = 8
         inner_rad = 4
 
         square_mask = (xmask-center_x<outter_rad)&(xmask-center_x>-outter_rad)&(ymask-center_y<outter_rad)&(ymask-center_y>-outter_rad)
