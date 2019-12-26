@@ -21,4 +21,6 @@ class Agent(object):
         self.observable_world = World # TODO reduce to imperfect world, not whole world is known at each timestep
 
 
-from .world import SquareWorld # has to be at the end of module due to circular imports
+
+
+# from .world import SquareWorld # has to be at the end of module due to circular imports

@@ -150,7 +150,6 @@ class MovingObject(Obstacle):
         self.acceleration = self.acceleration # TODO
 
 
-from .agent import Agent # has to be at the end of module due to circular imports
 from .shapes import *
 
     
