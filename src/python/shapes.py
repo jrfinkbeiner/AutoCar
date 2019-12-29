@@ -68,7 +68,6 @@ class OrientedCircle(OrientedShape, Circle):
 
 
 
-
 class OrientedRectangle(OrientedShape):
     def __init__(self, orientation, a, b):
         super().__init__(orientation)
@@ -89,13 +88,13 @@ class OrientedRectangle(OrientedShape):
         rot_angle_deg = rot_angle * 180 / np.pi
 
 
-        print(self.orientation)
-        print(rot_angle)
-        print(rot_angle_deg)
-        print('')
-        print([-0.5*self.a, -0.5*self.b])
-        print(rel_xy_min)
-        print(xy)
-        print(xy_min)
+        # print(self.orientation)
+        # print(rot_angle)
+        # print(rot_angle_deg)
+        # print('')
+        # print([-0.5*self.a, -0.5*self.b])
+        # print(rel_xy_min)
+        # print(xy)
+        # print(xy_min)
         
         return pat.Rectangle(xy=xy_min, width=self.a, height=self.b, angle=rot_angle_deg, **kwargs)

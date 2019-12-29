@@ -8,18 +8,24 @@ class SquareWorld(object):
     Takes
         size : tuple, (len_x, len_y) number of squares for x and y direction
         scale : float, conversion between squares and length scale (metres)
-        movingObjs : list of MovingObject, initial moving objects 
+        dynamicObjs : list of DynamicObject, initial dynamic objects 
         staticObjs : list of StaticObject, initial static objects 
     """
     
-    def __init__(self, size, scale=1.0, timestep=1.0, movingObjs=[], staticObjs=[]):
+    def __init__(self, size, scale=1.0, timestep=1.0, dynamicObjs=[], staticObjs=[]):
         super().__init__()
         self.size = size
         self.len_y, self.len_x = size
         self.scale = scale
         self.timestep = timestep
-        self.movingObjs = movingObjs
+        self.dynamicObjs = dynamicObjs
         self.staticObjs = staticObjs
+
+        self.static_patches = []
+        self.dynamic_patches = []
+
+        self._render_static_patches()
+        self._render_dynamic_patches()
 
         self.ground_map = self.__create_ground_map()
 
@@ -57,17 +63,17 @@ class SquareWorld(object):
         ground_map[square_mask] = 1
         return ground_map
 
-    def add_moving_object(self, obstacle):
+    def add_dynamic_object(self, obstacle):
         """
-        Adds an instance of type MovingObject to movingObjs.
+        Adds an instance of type DynamicObject to dynamicObjs.
         """
-        assert type(obstacle) == MovingObject, f"Expects instance of type MovingObject, got {type(obstacle)}."
-        self.movingObjs.append(obstacle)
+        assert type(obstacle) == DynamicObject, f"Expects instance of type DynamicObject, got {type(obstacle)}."
+        self.dynamicObjs.append(obstacle)
 
 
     def add_static_object(self, obstacle):
         """
-        Adds an instance of type StaticObject to movingObjs.
+        Adds an instance of type StaticObject to dynamicObjs.
         """
         assert type(obstacle) == StaticObject, f"Expects instance of type StaticObject, got {type(obstacle)}."
         self.staticObjs.append(obstacle)
@@ -75,18 +81,20 @@ class SquareWorld(object):
 
     def update(self):
         """
-        Updates wolrd given MovingObstacles Agents and their action/reaction to current Wolrd state. 
+        Updates wolrd given DynamicObstacles Agents and their action/reaction to current Wolrd state. 
         First saves actions to actions list and then executes all actions in actions list that were accumulatet via accumulate_updates at the same time.
         """
         action_list = []
-        for instance in self.movingObjs:
-            assert type(instance) == MovingObject, f"movingObjs has to contain only instances of type MovingObject, got {type(instance)}"
+        for instance in self.dynamicObjs:
+            assert type(instance) == DynamicObject, f"dynamicObjs has to contain only instances of type DynamicObject, got {type(instance)}"
             # TODO
             # action = ...
             # action_list.append((obj, action))
 
         for (instance, action) in action_list:
             self.perform_action(instance, action)
+
+        self._render_dynamic_patches()
 
 
     # TODO should updates really be accumultaed or should just be updated directly instance for instance? 
@@ -95,7 +103,7 @@ class SquareWorld(object):
     def accumulate_updates(self, instance):  
         """
         Saves Agents action/reation to world state to list of actions.
-            instance : MovingObject, instnace, e.g. Car
+            instance : DynamicObject, instnace, e.g. Car
         """
         pass
 
@@ -108,30 +116,49 @@ class SquareWorld(object):
         pass
 
 
+    def _render_static_patches(self): # TODO probably better with some kind of tracking id...
+        for instance in self.staticObjs:
+            self.static_patches.append(instance.return_matplotlib_patch())
+
+    def _render_dynamic_patches(self): # TODO probably better with some kind of tracking id...
+        for instance in self.dynamicObjs:
+            self.static_patches.append(instance.return_matplotlib_patch())
+
+    def obstacle_matplotlib_patches(self):
+        return self.static_patches, self.dynamic_patches
+
+
 
 
 class Obstacle(object):
-    def __init__(self, initial_position, Shape):
+    def __init__(self, Shape, initial_position):
         super().__init__()
         self.position = initial_position
         self.Shape = Shape
 
+    def return_matplotlib_patch(self):
+        return self.Shape.matplotlib_patch(self.position)
+
+
 class StaticObject(Obstacle):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, Shape, initial_position):
+        super().__init__(Shape, initial_position)
         assert isinstance(self.Shape, Shape), f"Expects instance that is child class of Shape, got {type(self.Shape)}."
 
 
-class MovingObject(Obstacle):
+class DynamicObject(Obstacle):
     """
-    Moving object, inherits form Obstacle.
-        velocity : tuple (vx, vy), velocity with which the instance is displaced
+    Dynamic object, inherits form Obstacle.
+        Shape : Shape, instance of Shape class determining the shape of the obstacle
+        position : list [float posx, float posy], position of the instance on in the wolrd/map
+        velocity : list [float vx, float vy], velocity with which the instance is displaced
+        acceleration : list [float ax, float ay], acceleration of the instance
         ControllingAgent : Agent, agent that takes world and instance state and chooses action to take
     """
-    def __init__(self, initial_velocity, initial_acceleration, ControllingAgent):
-        super().__init__()
+    def __init__(self, Shape, initial_position, initial_velocity, initial_acceleration, ControllingAgent):
+        super().__init__(Shape, initial_position)
         assert isinstance(self.Shape, OrientedShape), f"Expects instance that is child class of OrientedShapes, got {type(self.Shape)}."
-        self.acceleration = initial_velocity
+        self.acceleration = initial_acceleration
         self.velocity = initial_velocity
         self.ControllingAgent = ControllingAgent
 
