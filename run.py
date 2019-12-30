@@ -23,6 +23,9 @@ def main():
 
     MyWorld = SquareWorld(size=SIZE, dynamicObjs=[Car0])
 
+    
+    
+
 
 
     # MyWorld.add_dynamic_object(Car0)
@@ -33,12 +36,11 @@ def main():
 
 
 
+    plot_ground_map(MyWorld=MyWorld) 
 
 
-    plot_ground_map(MyWorld=MyWorld) #
 
-
-def plot_ground_map(MyWorld, patches=[]):
+def plot_ground_map(MyWorld):
     static_patches, dynamic_patches = MyWorld.obstacle_matplotlib_patches()
     fig, ax = plt.subplots(1)
     ax.imshow(MyWorld.ground_map)

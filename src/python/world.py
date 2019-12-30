@@ -128,6 +128,11 @@ class SquareWorld(object):
         return self.static_patches, self.dynamic_patches
 
 
+    def start_vizu(self):
+        qapp = QApplication()#sys.argv)
+        # print(sys.argv)
+        app = ApplicationWindow('World') # TODO
+        sys.exit(qapp.exec_())
 
 
 class Obstacle(object):
@@ -178,5 +183,5 @@ class DynamicObject(Obstacle):
 
 
 from .shapes import *
-
+from .vizu import ApplicationWindow
     

@@ -11,16 +11,6 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 
-
-class VizuManager(object): # TODO possibly already an 
-    def __init__(self, World):
-        super().__init__()
-        qapp = QApplication()#sys.argv)
-        # print(sys.argv)
-        app = ApplicationWindow('World')
-
-
-
 class ApplicationWindow(QMainWindow):
 
     def __init__(self, World):
