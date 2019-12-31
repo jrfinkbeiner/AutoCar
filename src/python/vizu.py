@@ -15,9 +15,11 @@ import matplotlib.pyplot as plt
 class VizuManager(object): # TODO possibly already an 
     def __init__(self, World):
         super().__init__()
-        qapp = QApplication()#sys.argv)
+        self.qapp = QApplication()#sys.argv)
         # print(sys.argv)
-        app = ApplicationWindow('World')
+        self.app = ApplicationWindow('World')
+
+
 
 
 
@@ -68,7 +70,7 @@ class PlotCanvas(FigureCanvas):
         self._timer = self.new_timer(
             100, [(self._update_canvas, (), {})])
 
-        print('SET TIMER')
+        # print('SET TIMER')
 
 
     def start_timer(self):
@@ -101,8 +103,6 @@ class PlotCanvas(FigureCanvas):
         self.draw()
         # self._dynamic_ax.figure.canvas.draw() 
 
-
-
     def _plot_static_ax(self):
         t = np.linspace(0, 10, 501)
         self._static_ax.plot(t, np.tan(t), ".", color='C1')
@@ -112,7 +112,7 @@ class PlotCanvas(FigureCanvas):
         self._dynamic_ax.plot(t, np.sin(t + time.time()))
 
 if __name__ == '__main__':
-    qapp = QApplication()#sys.argv)
+    qapp = QApplication(sys.argv)
     # print(sys.argv)
     app = ApplicationWindow('World') # TODO
     sys.exit(qapp.exec_())

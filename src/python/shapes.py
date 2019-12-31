@@ -16,23 +16,6 @@ def inv_rot_mat_from_angle(angle):
 
 
 
-def orientation_to_angle(orientation):
-    """
-    Transforms orientation tuple to rotation angle.
-        orientation : tuple (float y, float x)
-    """
-
-    rot_angle = -np.arcsin(orientation[0])
-    
-    if orientation[1] < 0:
-        if rot_angle < 0: # TODO possibly find nicer/simpler equations?
-            rot_angle = -(np.pi - np.abs(rot_angle))
-        else:
-            rot_angle = np.pi - rot_angle
-
-    return rot_angle
-
-
 class Shape(object):
     def __init__(self):
         super().__init__()
@@ -44,6 +27,13 @@ class Shape(object):
         """
         raise NotImplementedError
 
+    def update_patch(self, patch):
+        """
+        Updates a mapltplotlib.patches patch according to subclass type.
+            patch = mapltplotlib.patches.patch, instance of patch calss whoch values are to be updated
+        """
+        raise NotImplementedError
+
 class OrientedShape(Shape):
     """
     Shpape with information about its orientation.
@@ -52,6 +42,22 @@ class OrientedShape(Shape):
     def __init__(self, orientation):
         super().__init__()
         self.orientation = np.asarray(orientation) / np.linalg.norm(orientation)
+
+
+    def _calc_rot_angle(self):
+        """
+        Calculates rotation angle form orientation tuple.
+        """
+        rot_angle = -np.arcsin(self.orientation[0])
+        
+        if self.orientation[1] < 0:
+            if rot_angle < 0: # TODO possibly find nicer/simpler equations?
+                rot_angle = -(np.pi - np.abs(rot_angle))
+            else:
+                rot_angle = np.pi - rot_angle
+
+        return rot_angle
+
 
 
 class Circle(Shape):
@@ -74,27 +80,21 @@ class OrientedRectangle(OrientedShape):
         self.a = a
         self.b = b
 
-    def matplotlib_patch(self, xy, **kwargs):
-        # xy_min = (xy[0]-0.5*self.a, xy[1]-0.5*self.b)
-        xy_min = (xy[0], xy[1])
-        rot_angle = orientation_to_angle(self.orientation)
-
+    def _calc_patch_xy_and_angle(self, xy):
+        rot_angle = self._calc_rot_angle()
+        rot_angle_deg = rot_angle * 180 / np.pi
         inv_rot_mat = inv_rot_mat_from_angle(rot_angle)
-
 
         rel_xy_min = np.dot([-0.5*self.a, -0.5*self.b], inv_rot_mat.T)
         xy_min = np.asarray(xy) + rel_xy_min
-        
-        rot_angle_deg = rot_angle * 180 / np.pi
+        return xy_min, rot_angle_deg
 
-
-        # print(self.orientation)
-        # print(rot_angle)
-        # print(rot_angle_deg)
-        # print('')
-        # print([-0.5*self.a, -0.5*self.b])
-        # print(rel_xy_min)
-        # print(xy)
-        # print(xy_min)
-        
+    def matplotlib_patch(self, xy, **kwargs):
+        xy_min, rot_angle_deg = self._calc_patch_xy_and_angle(xy)
         return pat.Rectangle(xy=xy_min, width=self.a, height=self.b, angle=rot_angle_deg, **kwargs)
+
+    def update_patch(self, patch, xy):
+        assert type(patch) == pat.Rectangle, f"Expects instance of class matplotlib.patches.Rectangle, got {type(patch)}"
+        xy_min, rot_angle_deg = self._calc_patch_xy_and_angle(xy)
+        patch.set_xy(xy_min)
+        patch.angle = rot_angle_deg # TODO check

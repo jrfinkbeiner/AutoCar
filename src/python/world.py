@@ -12,36 +12,48 @@ class SquareWorld(object):
         staticObjs : list of StaticObject, initial static objects 
     """
     
-    def __init__(self, size, scale=1.0, timestep=1.0, dynamicObjs=[], staticObjs=[]):
+    def __init__(self, size, scale=1.0, timestep=1.0, dynamicObjs=[], staticObjs=[], online_vizu_bool=True):
         super().__init__()
         self.size = size
         self.len_y, self.len_x = size
         self.scale = scale
         self.timestep = timestep
-        self.dynamicObjs = dynamicObjs
+        
         self.staticObjs = staticObjs
+        self.dynamicObjs = dynamicObjs
+        self.IDs = []
+        self.staticIDs, self.dynamicIDs = self._create_lists_and_assign_IDs()
 
-        self.static_patches = []
-        self.dynamic_patches = []
 
-        self._render_static_patches()
-        self._render_dynamic_patches()
+        self.static_patches = {}
+        self.dynamic_patches = {}
 
-        self.ground_map = self.__create_ground_map()
+        self._update_static_patches()
+        self._update_dynamic_patches()
+
+        self.ground_map = self._create_ground_map()
+
+
+
+
+        if online_vizu_bool:
+
+        
+            self.online_vizu = VizuManager(World=self, title='World vizu') #TODO
 
 
 
     # TODO think about this. Shouldn't it just be a (negative) reward map? Instead of multidim classification map?
-    def __create_ground_map(self):
+    def _create_ground_map(self):
         """
         Creates world, numpy array of size (self.len_x, self.len_y, 2) defining drivable and non drivable space.
         """
         ground_map = np.zeros((self.len_x, self.len_y))
-        ground_map = self.__define_drivable_space(ground_map) # TODO think
+        ground_map = self._define_drivable_space(ground_map) # TODO think
         # TODO possibly other spaces 
         return ground_map
 
-    def __define_drivable_space(self, ground_map):
+    def _define_drivable_space(self, ground_map):
         # TODO implement interactive vizu
         """
         Defines areas of drivable space via interactive vizualisation.
@@ -62,6 +74,54 @@ class SquareWorld(object):
 
         ground_map[square_mask] = 1
         return ground_map
+
+
+    def _create_lists_and_assign_IDs(self):
+        staticIDs = []
+        dynamicIDs = []
+        
+        if (len(self.staticObjs) == 0) and (len(self.dynamicObjs) == 0):
+            return staticIDs, dynamicIDs
+
+        unassigned_staticObjs = []
+        unassigned_dynamicObjs = []
+
+        for obj in self.staticObjs:
+            if obj.ID == None:
+                unassigned_staticObjs.append(obj)
+                continue
+            if not obj.ID in staticIDs:
+                staticIDs.append(obj.ID)
+                self.IDs.append(obj.ID)
+            else:
+                raise ValueError("All objects need different IDs. At least two static objects have the same ID.")
+            
+        for obj in self.dynamicObjs:
+            if obj.ID == None:
+                unassigned_dynamicObjs.append(obj)
+                continue
+            if not obj.ID in dynamicIDs:
+                dynamicIDs.append(obj.ID)
+                self.IDs.append(obj.ID)
+            else:
+                raise ValueError("All objects need different IDs. Got at least two objects with same ID.")
+
+        missing_IDs = sorted(list(set(range(len(self.staticObjs)+len(self.dynamicObjs))) - set(self.IDs)))
+        for unassigned_objs, ID_list in zip([unassigned_staticObjs, unassigned_dynamicObjs], [staticIDs, dynamicIDs]):
+            for obj in unassigned_objs:
+                
+                obj.ID = missing_IDs[0]
+                ID_list.append(missing_IDs[0])
+                self.IDs.append(missing_IDs[0])
+                del missing_IDs[0]
+
+        self.IDs = sorted(self.IDs)
+        return staticIDs, dynamicIDs
+
+
+    def _check_and_assign_IDs(self):
+        self._check_and_assign_IDs
+
 
     def add_dynamic_object(self, obstacle):
         """
@@ -94,7 +154,7 @@ class SquareWorld(object):
         for (instance, action) in action_list:
             self.perform_action(instance, action)
 
-        self._render_dynamic_patches()
+        self._update_dynamic_patches()
 
 
     # TODO should updates really be accumultaed or should just be updated directly instance for instance? 
@@ -116,52 +176,58 @@ class SquareWorld(object):
         pass
 
 
-    def _render_static_patches(self): # TODO probably better with some kind of tracking id...
+    def _update_static_patches(self): # TODO probably better with some kind of tracking id...
         for instance in self.staticObjs:
-            self.static_patches.append(instance.return_matplotlib_patch())
+            if not (instance.ID in self.static_patches):
+                self.static_patches[instance.ID] = instance.return_matplotlib_patch()
+            else:
+                pass # TODO implement state update of 
 
-    def _render_dynamic_patches(self): # TODO probably better with some kind of tracking id...
+    def _update_dynamic_patches(self): # TODO probably better with some kind of tracking id...
         for instance in self.dynamicObjs:
-            self.static_patches.append(instance.return_matplotlib_patch())
+            if instance.ID in self.static_patches:
+                patch = self.dynamic_patches[instance.ID]
+                instance.update_patch(patch)
+            else:
+                self.dynamic_patches[instance.ID] = instance.return_matplotlib_patch()
 
     def obstacle_matplotlib_patches(self):
-        return self.static_patches, self.dynamic_patches
+        return self.static_patches.values(), self.dynamic_patches.values()
 
-
-    def start_vizu(self):
-        qapp = QApplication()#sys.argv)
-        # print(sys.argv)
-        app = ApplicationWindow('World') # TODO
-        sys.exit(qapp.exec_())
 
 
 class Obstacle(object):
-    def __init__(self, Shape, initial_position):
+    def __init__(self, Shape, initial_position, ID=None):
         super().__init__()
-        self.position = initial_position
         self.Shape = Shape
+        self.position = initial_position
+        self.ID = ID
 
     def return_matplotlib_patch(self):
         return self.Shape.matplotlib_patch(self.position)
 
 
 class StaticObject(Obstacle):
-    def __init__(self, Shape, initial_position):
-        super().__init__(Shape, initial_position)
+    def __init__(self, Shape, initial_position, ID=None):
+        super().__init__(Shape, initial_position, ID)
         assert isinstance(self.Shape, Shape), f"Expects instance that is child class of Shape, got {type(self.Shape)}."
+
+    def update_patch(self):
+        self.Shape.update_patch() # TODO implement
 
 
 class DynamicObject(Obstacle):
     """
     Dynamic object, inherits form Obstacle.
         Shape : Shape, instance of Shape class determining the shape of the obstacle
+        ID : int, ID for tracking/referencing
         position : list [float posx, float posy], position of the instance on in the wolrd/map
         velocity : list [float vx, float vy], velocity with which the instance is displaced
         acceleration : list [float ax, float ay], acceleration of the instance
         ControllingAgent : Agent, agent that takes world and instance state and chooses action to take
     """
-    def __init__(self, Shape, initial_position, initial_velocity, initial_acceleration, ControllingAgent):
-        super().__init__(Shape, initial_position)
+    def __init__(self, Shape, initial_position, initial_velocity, initial_acceleration, ControllingAgent, ID=None):
+        super().__init__(Shape, initial_position, ID)
         assert isinstance(self.Shape, OrientedShape), f"Expects instance that is child class of OrientedShapes, got {type(self.Shape)}."
         self.acceleration = initial_acceleration
         self.velocity = initial_velocity
@@ -181,7 +247,10 @@ class DynamicObject(Obstacle):
     def update_acceleration(self):
         self.acceleration = self.acceleration # TODO
 
+    def update_patch(self, patch): # TODO really like this or just give the object the patch itself?
+        self.Shape.update_patch(patch, self.position)
+
 
 from .shapes import *
-from .vizu import ApplicationWindow
+from .vizualiser import VizuManager
     

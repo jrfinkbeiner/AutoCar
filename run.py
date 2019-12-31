@@ -21,11 +21,7 @@ def main():
                         initial_acceleration=[0.0, 0.0],
                         ControllingAgent=Agent())
 
-    MyWorld = SquareWorld(size=SIZE, dynamicObjs=[Car0])
-
-    
-    
-
+    MyWorld = SquareWorld(size=SIZE, dynamicObjs=[Car0], online_vizu_bool=True)
 
 
     # MyWorld.add_dynamic_object(Car0)
@@ -36,21 +32,65 @@ def main():
 
 
 
-    plot_ground_map(MyWorld=MyWorld) 
+    # plot_ground_map(MyWorld=MyWorld) 
 
 
 
 def plot_ground_map(MyWorld):
     static_patches, dynamic_patches = MyWorld.obstacle_matplotlib_patches()
-    fig, ax = plt.subplots(1)
-    ax.imshow(MyWorld.ground_map)
 
-    for patches in [static_patches, dynamic_patches]:
-        for patch in patches:
-            print(patch)
-            ax.add_patch(patch)
-    plt.grid()
+
+    fig, static_ax = plt.subplots(1, sharex=True, sharey=True)
+    dynamic_ax = static_ax.twinx().twiny()
+
+    static_ax.patch.set_visible(False)
+    static_ax.imshow(MyWorld.ground_map)
+    dynamic_ax.set_xlim((0,20))
+    dynamic_ax.set_ylim((0,20))
+    # static_ax.set_zorder(dynamic_ax.get_zorder()+1)
+    print(static_ax.get_zorder())
+    print(dynamic_ax.get_zorder())
+
+
+    # for patch in static_patches:
+    #     print(patch)
+    #     static_ax.add_patch(patch)
+
+    for patch in dynamic_patches:
+        print(patch)
+        dynamic_ax.add_patch(patch)
+
+    # fig, static_ax = plt.subplots(1)
+    # dynamic_ax = static_ax.twinx().twiny()
+    # static_ax.imshow(MyWorld.ground_map)
+    # for patch in static_patches:
+    #     print(patch)
+    #     static_ax.add_patch(patch)
+
+
+    # for patch in dynamic_patches:
+    #     print(patch)
+    #     dynamic_ax.add_patch(patch)
+
+
+    # fig, ax = plt.subplots(1)
+    # ax.imshow(MyWorld.ground_map)
+
+    # for patches in [static_patches, dynamic_patches]:
+    #     for patch in patches:
+    #         print(patch)
+    #         ax.add_patch(patch)
+
+    static_ax.grid()
+
+
+    for patch in dynamic_patches:
+        print(patch)
+        patch.set_xy([15, 15])
+        # patch.angle = 0.0
+
     plt.show()
+
 
 
 if __name__ == '__main__':
