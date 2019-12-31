@@ -23,6 +23,8 @@ def main():
 
     MyWorld = SquareWorld(size=SIZE, dynamicObjs=[Car0], online_vizu_bool=True)
 
+    MyWorld.run(num_steps=100)
+
 
     # MyWorld.add_dynamic_object(Car0)
 

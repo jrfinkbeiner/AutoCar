@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from tqdm import tqdm
+import time
 
 class SquareWorld(object):
     """
@@ -37,11 +38,28 @@ class SquareWorld(object):
 
 
         if online_vizu_bool:
-
-        
             self.online_vizu = VizuManager(World=self, title='World vizu') #TODO
 
 
+    def run(self, num_steps=None):
+        
+        if num_steps==None:
+            while True:
+                self.run_step()
+        else:
+            assert type(num_steps) == int, f"Expects int, got {type(num_steps)}"
+            for _ in tqdm(range(num_steps)):
+                self.run_step()
+
+    def run_step(self):
+        time.sleep(0.2)
+        # TODO to be del just chekcing
+        print(time.time())
+        self.dynamicObjs[0].Shape.orientation = np.dot(np.array(self.dynamicObjs[0].Shape.orientation), np.array([[np.cos(time.time()), np.sin(time.time())], [-np.sin(time.time()), np.cos(time.time())]]))
+        print(self.dynamicObjs[0].Shape.orientation)
+        
+        self.dynamicObjs[0].Shape.update_patch(self.dynamic_patches[0], self.dynamicObjs[0].position)
+        print(self.dynamic_patches[0])
 
     # TODO think about this. Shouldn't it just be a (negative) reward map? Instead of multidim classification map?
     def _create_ground_map(self):

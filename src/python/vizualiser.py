@@ -40,17 +40,80 @@ class ApplicationWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        Canvas = PlotCanvas(World=self.World, parent=self, width=5, height=4)
-        Canvas.move(0,0)
+        self.Canvas = PlotCanvas(World=self.World, parent=self, width=5, height=4)
+        self.Canvas.move(0,0)
 
-        button = QPushButton('PyQt5 button', self) # TODO
-        button.setToolTip('This s an example button') # TODO
-        button.move(500,0)
-        button.resize(140,100)
 
-        Canvas.start_timer()
+        print('\nBUTTON STUFF')
+        self.init_ExitButton()
+        self.init_RunAndStopButton()
+
         self.show()
 
+
+    def init_ExitButton(self):
+        self.exitButton = QPushButton('Exit', self) # TODO
+        self.exitButton.setToolTip('Pressing this button exits and stops the application window') # TODO
+        self.exitButton.move(500,0)
+        self.exitButton.resize(140,100)
+        
+        self.exitButton.clicked.connect(self.exit)
+
+
+    def init_RunAndStopButton(self):
+        self.init_RunButton()
+        self.init_StopButton()
+
+
+    def init_RunButton(self):
+        self.RunBtn = RunButton('Run', self) # TODO
+        self.RunBtn.setToolTip('Pressing this button continues running the world.') # TODO
+        self.RunBtn.move(500,150)
+        self.RunBtn.resize(140,100)
+    
+        self.RunBtn.clicked.connect(self.RunBtn.run)
+
+
+    def init_StopButton(self):
+        self.StopBtn = StopButton('Stop', self) # TODO
+        self.StopBtn.setToolTip('Pressing this button stops running the world.') # TODO
+        self.StopBtn.move(500,300)
+        self.StopBtn.resize(140,100)
+
+        self.StopBtn.clicked.connect(self.StopBtn.stop)
+
+    def exit(self):
+        self.Canvas.stop_timer()
+        del self.Canvas._timer # TODO somehow properly delete timer before self.close()
+        self.close()
+
+
+
+class RunButton(QPushButton):
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.app = parent
+        self.setCheckable(True)
+
+    def run(self):
+        if self.isChecked():
+            print('run')
+            self.app.StopBtn.toggle()
+            self.app.Canvas.start_timer()
+
+
+class StopButton(QPushButton):
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.app = parent
+        self.setCheckable(True)
+        self.toggle()
+
+    def stop(self):
+        if self.isChecked():
+            print('stop')
+            self.app.RunBtn.toggle()
+            self.app.Canvas.stop_timer()
 
 class PlotCanvas(FigureCanvas):
 
@@ -65,14 +128,16 @@ class PlotCanvas(FigureCanvas):
         self.plot_canvas()
 
         self._timer = self.new_timer(
-            100, [(self._update_canvas, (), {})])
-
-        # print('SET TIMER')
+            500, [(self._update, (), {})])
 
 
     def start_timer(self):
         self._timer.start()
-        print('STARTED TIMER')
+
+
+    def stop_timer(self):
+        self._timer.stop()
+        
 
     def _init_axis(self):
         self.setSizePolicy( # TODO what is this ?
@@ -83,16 +148,14 @@ class PlotCanvas(FigureCanvas):
         self._ax.grid()
 
 
+    def _update(self):
+        print('')
+        print(self.World.dynamic_patches[0])
+        self.World.run_step()
+        self._update_canvas
+
     def _update_canvas(self):
-        # self._replot_dynamic_patches()
-        # TODO to be del just chekcing
-        print(time.time())
-        self.World.dynamicObjs[0].Shape.orientation = np.dot(np.array(self.World.dynamicObjs[0].Shape.orientation), np.array([[np.cos(time.time()), np.sin(time.time())], [-np.sin(time.time()), np.cos(time.time())]]))
-        print(self.World.dynamicObjs[0].Shape.orientation)
-        
-        self.World.dynamicObjs[0].Shape.update_patch(self.World.dynamic_patches[0], self.World.dynamicObjs[0].position)
-        print(self.World.dynamicObjs[0].Shape)
-        self.draw() # already enough?!
+        self.draw() # already enough if patches are changed by world updates!
 
 
     def plot_canvas(self):
