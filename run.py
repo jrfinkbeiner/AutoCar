@@ -21,9 +21,9 @@ def main():
                         initial_acceleration=[0.0, 0.0],
                         ControllingAgent=Agent())
 
-    MyWorld = SquareWorld(size=SIZE, dynamicObjs=[Car0], online_vizu_bool=True)
+    MyWorld = SquareWorld(size=SIZE, timestep=0.5, dynamicObjs=[Car0], online_vizu_bool=True)
 
-    MyWorld.run(num_steps=100)
+    # MyWorld.run(num_steps=100)
 
 
     # MyWorld.add_dynamic_object(Car0)

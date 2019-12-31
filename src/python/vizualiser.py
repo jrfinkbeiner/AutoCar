@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 
 
 class VizuManager(object): # TODO possibly already an 
-    def __init__(self, World, title):
+    def __init__(self, World, timestep, title):
         super().__init__()
         self.qapp = QApplication(sys.argv)
         print(sys.argv)
-        self.app = ApplicationWindow(World=World, title=title)
+        self.app = ApplicationWindow(World=World, timestep=timestep, title=title)
         sys.exit(self.qapp.exec_())
 
         
@@ -25,7 +25,7 @@ class VizuManager(object): # TODO possibly already an
 
 class ApplicationWindow(QMainWindow):
 
-    def __init__(self, World, title):
+    def __init__(self, World, timestep, title):
         super().__init__()
         self.World = World
 
@@ -34,24 +34,22 @@ class ApplicationWindow(QMainWindow):
         self.title = title
         self.width = 640
         self.height = 400
-        self.init_UI()
+        self._init_UI(timestep)
 
-    def init_UI(self):
+    def _init_UI(self, timestep):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.Canvas = PlotCanvas(World=self.World, parent=self, width=5, height=4)
+        self.Canvas = PlotCanvas(World=self.World, timestep=timestep, parent=self, width=5, height=4)
         self.Canvas.move(0,0)
 
-
-        print('\nBUTTON STUFF')
-        self.init_ExitButton()
-        self.init_RunAndStopButton()
+        self._init_ExitButton()
+        self._init_RunAndStopButton()
 
         self.show()
 
 
-    def init_ExitButton(self):
+    def _init_ExitButton(self):
         self.exitButton = QPushButton('Exit', self) # TODO
         self.exitButton.setToolTip('Pressing this button exits and stops the application window') # TODO
         self.exitButton.move(500,0)
@@ -60,21 +58,21 @@ class ApplicationWindow(QMainWindow):
         self.exitButton.clicked.connect(self.exit)
 
 
-    def init_RunAndStopButton(self):
-        self.init_RunButton()
-        self.init_StopButton()
+    def _init_RunAndStopButton(self):
+        self._init_RunButton()
+        self._init_StopButton()
 
 
-    def init_RunButton(self):
+    def _init_RunButton(self):
         self.RunBtn = RunButton('Run', self) # TODO
-        self.RunBtn.setToolTip('Pressing this button continues running the world.') # TODO
+        self.RunBtn.setToolTip('Pressing this button starts/continues running the world.') # TODO
         self.RunBtn.move(500,150)
         self.RunBtn.resize(140,100)
     
         self.RunBtn.clicked.connect(self.RunBtn.run)
 
 
-    def init_StopButton(self):
+    def _init_StopButton(self):
         self.StopBtn = StopButton('Stop', self) # TODO
         self.StopBtn.setToolTip('Pressing this button stops running the world.') # TODO
         self.StopBtn.move(500,300)
@@ -97,7 +95,6 @@ class RunButton(QPushButton):
 
     def run(self):
         if self.isChecked():
-            print('run')
             self.app.StopBtn.toggle()
             self.app.Canvas.start_timer()
 
@@ -111,24 +108,24 @@ class StopButton(QPushButton):
 
     def stop(self):
         if self.isChecked():
-            print('stop')
             self.app.RunBtn.toggle()
             self.app.Canvas.stop_timer()
 
 class PlotCanvas(FigureCanvas):
 
-    def __init__(self, World, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, World, timestep, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         super().__init__(figure=fig)
         self.setParent(parent)
 
         self.World = World
-
+        self.timestep = 1000 * timestep
         self._init_axis()
         self.plot_canvas()
 
+
         self._timer = self.new_timer(
-            500, [(self._update, (), {})])
+            self.timestep, [(self._update, (), {})])
 
 
     def start_timer(self):
@@ -149,10 +146,8 @@ class PlotCanvas(FigureCanvas):
 
 
     def _update(self):
-        print('')
-        print(self.World.dynamic_patches[0])
         self.World.run_step()
-        self._update_canvas
+        self._update_canvas()
 
     def _update_canvas(self):
         self.draw() # already enough if patches are changed by world updates!
@@ -163,7 +158,6 @@ class PlotCanvas(FigureCanvas):
         self._plot_dynamic_patches()
         # TODO difference in self.draw() and specifying draw of each axis?
         self.draw()
-        print('drawn')
 
     def _plot_static_canvas(self):
         self._ax.imshow(self.World.ground_map)

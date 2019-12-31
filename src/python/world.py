@@ -25,20 +25,17 @@ class SquareWorld(object):
         self.IDs = []
         self.staticIDs, self.dynamicIDs = self._create_lists_and_assign_IDs()
 
-
-        self.static_patches = {}
-        self.dynamic_patches = {}
-
-        self._update_static_patches()
-        self._update_dynamic_patches()
-
         self.ground_map = self._create_ground_map()
 
-
-
-
+        self.online_vizu_bool = online_vizu_bool
         if online_vizu_bool:
-            self.online_vizu = VizuManager(World=self, title='World vizu') #TODO
+            self.static_patches = {}
+            self.dynamic_patches = {}
+
+            self._update_static_patches()
+            self._update_dynamic_patches()
+
+            self.online_vizu = VizuManager(World=self, timestep=timestep, title='World vizu') #TODO
 
 
     def run(self, num_steps=None):
@@ -52,14 +49,16 @@ class SquareWorld(object):
                 self.run_step()
 
     def run_step(self):
-        time.sleep(0.2)
-        # TODO to be del just chekcing
-        print(time.time())
-        self.dynamicObjs[0].Shape.orientation = np.dot(np.array(self.dynamicObjs[0].Shape.orientation), np.array([[np.cos(time.time()), np.sin(time.time())], [-np.sin(time.time()), np.cos(time.time())]]))
-        print(self.dynamicObjs[0].Shape.orientation)
+        # # TODO to be del just chekcing
+        # print(time.time())
+        # self.dynamicObjs[0].Shape.orientation = np.dot(np.array(self.dynamicObjs[0].Shape.orientation), np.array([[np.cos(time.time()), np.sin(time.time())], [-np.sin(time.time()), np.cos(time.time())]]))
+        # print(self.dynamicObjs[0].Shape.orientation)
         
         self.dynamicObjs[0].Shape.update_patch(self.dynamic_patches[0], self.dynamicObjs[0].position)
         print(self.dynamic_patches[0])
+
+        self.update()
+
 
     # TODO think about this. Shouldn't it just be a (negative) reward map? Instead of multidim classification map?
     def _create_ground_map(self):
@@ -137,15 +136,16 @@ class SquareWorld(object):
         return staticIDs, dynamicIDs
 
 
-    def _check_and_assign_IDs(self):
-        self._check_and_assign_IDs
-
+    def _check_and_assign_ID(self):
+        # TODO implement
+        pass
 
     def add_dynamic_object(self, obstacle):
         """
         Adds an instance of type DynamicObject to dynamicObjs.
         """
         assert type(obstacle) == DynamicObject, f"Expects instance of type DynamicObject, got {type(obstacle)}."
+        # TODO _check_and_assign_ID
         self.dynamicObjs.append(obstacle)
 
 
@@ -166,13 +166,14 @@ class SquareWorld(object):
         for instance in self.dynamicObjs:
             assert type(instance) == DynamicObject, f"dynamicObjs has to contain only instances of type DynamicObject, got {type(instance)}"
             # TODO
-            # action = ...
-            # action_list.append((obj, action))
+            action = instance.determine_action()
+            action_list.append((instance, action))
 
         for (instance, action) in action_list:
-            self.perform_action(instance, action)
+            instance.perform_action(action, self.timestep) # self.perform_action(instance, action)
 
-        self._update_dynamic_patches()
+        if self.online_vizu_bool:
+            self._update_dynamic_patches()
 
 
     # TODO should updates really be accumultaed or should just be updated directly instance for instance? 
@@ -185,13 +186,6 @@ class SquareWorld(object):
         """
         pass
 
-
-    def perform_action(self, instance, action):
-        """
-        Changes state of world and instance according to action.
-        """
-
-        pass
 
 
     def _update_static_patches(self): # TODO probably better with some kind of tracking id...
@@ -251,19 +245,31 @@ class DynamicObject(Obstacle):
         self.velocity = initial_velocity
         self.ControllingAgent = ControllingAgent
 
-    def update_state(self, timestep):
-        self.update_acceleration()
-        self.update_velocity(timestep)
-        self.update_position(timestep)
 
-    def update_position(self, timestep):
+    def determine_action(self):
+        self.ControllingAgent.determine_action(self)
+
+
+    def perform_action(self, action, timestep):
+        """
+        Changes state of instance according to action.
+        """
+        self.update_state(action, timestep)
+
+
+    def update_state(self, new_acceleration, timestep):
+        self._update_acceleration(new_acceleration)
+        self._update_velocity(timestep)
+        self._update_position(timestep)
+
+    def _update_position(self, timestep):
         self.position += self.velocity * timestep
 
-    def update_velocity(self, timestep):
+    def _update_velocity(self, timestep):
         self.velocity = self.velocity # TODO
 
-    def update_acceleration(self):
-        self.acceleration = self.acceleration # TODO
+    def _update_acceleration(self, new_acceleration):
+        self.acceleration = new_acceleration # TODO
 
     def update_patch(self, patch): # TODO really like this or just give the object the patch itself?
         self.Shape.update_patch(patch, self.position)

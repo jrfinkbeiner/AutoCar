@@ -21,7 +21,11 @@ class Agent(object):
         assert isinstance(World, SquareWorld), f"Expects instance of type SquareWorld, got {type(World)}"
         self.observable_world = World # TODO reduce to imperfect world, not whole world is known at each timestep
 
+    def determine_action(self, DynamicObj):
+        assert type(DynamicObj) == DynamicObject, f"Expects instance of type DynamicObject, got {type(DynamicObj)}"
 
+        acceleration = np.array([0.1, 0.0]) # better: absolute acc val + steering wheel angle
 
+        return acceleration
 
-from .world import SquareWorld # has to be at the end of module due to circular imports
+from .world import SquareWorld, DynamicObject # has to be at the end of module due to circular imports
