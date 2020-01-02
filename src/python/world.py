@@ -54,11 +54,9 @@ class SquareWorld(object):
         # self.dynamicObjs[0].Shape.orientation = np.dot(np.array(self.dynamicObjs[0].Shape.orientation), np.array([[np.cos(time.time()), np.sin(time.time())], [-np.sin(time.time()), np.cos(time.time())]]))
         # print(self.dynamicObjs[0].Shape.orientation)
         
-        self.dynamicObjs[0].Shape.update_patch(self.dynamic_patches[0], self.dynamicObjs[0].position)
-        print(self.dynamic_patches[0])
-
+        #self.dynamicObjs[0].Shape.update_patch(self.dynamic_patches[0], self.dynamicObjs[0].position)
         self.update()
-
+        print(self.dynamic_patches[0])
 
     # TODO think about this. Shouldn't it just be a (negative) reward map? Instead of multidim classification map?
     def _create_ground_map(self):
@@ -166,7 +164,7 @@ class SquareWorld(object):
         for instance in self.dynamicObjs:
             assert type(instance) == DynamicObject, f"dynamicObjs has to contain only instances of type DynamicObject, got {type(instance)}"
             # TODO
-            action = instance.determine_action()
+            action = instance.get_action()
             action_list.append((instance, action))
 
         for (instance, action) in action_list:
@@ -188,20 +186,22 @@ class SquareWorld(object):
 
 
 
-    def _update_static_patches(self): # TODO probably better with some kind of tracking id...
+    def _update_static_patches(self): 
         for instance in self.staticObjs:
             if not (instance.ID in self.static_patches):
                 self.static_patches[instance.ID] = instance.return_matplotlib_patch()
             else:
                 pass # TODO implement state update of 
 
-    def _update_dynamic_patches(self): # TODO probably better with some kind of tracking id...
+
+    def _update_dynamic_patches(self): 
         for instance in self.dynamicObjs:
-            if instance.ID in self.static_patches:
+            if instance.ID in self.dynamic_patches:
                 patch = self.dynamic_patches[instance.ID]
                 instance.update_patch(patch)
             else:
                 self.dynamic_patches[instance.ID] = instance.return_matplotlib_patch()
+
 
     def obstacle_matplotlib_patches(self):
         return self.static_patches.values(), self.dynamic_patches.values()
@@ -212,7 +212,7 @@ class Obstacle(object):
     def __init__(self, Shape, initial_position, ID=None):
         super().__init__()
         self.Shape = Shape
-        self.position = initial_position
+        self.position = np.asarray(initial_position)
         self.ID = ID
 
     def return_matplotlib_patch(self):
@@ -241,13 +241,13 @@ class DynamicObject(Obstacle):
     def __init__(self, Shape, initial_position, initial_velocity, initial_acceleration, ControllingAgent, ID=None):
         super().__init__(Shape, initial_position, ID)
         assert isinstance(self.Shape, OrientedShape), f"Expects instance that is child class of OrientedShapes, got {type(self.Shape)}."
-        self.acceleration = initial_acceleration
-        self.velocity = initial_velocity
+        self.acceleration = np.asarray(initial_acceleration)
+        self.velocity = np.asarray(initial_velocity)
         self.ControllingAgent = ControllingAgent
 
 
-    def determine_action(self):
-        self.ControllingAgent.determine_action(self)
+    def get_action(self):
+        return self.ControllingAgent.determine_action(self)
 
 
     def perform_action(self, action, timestep):
@@ -257,22 +257,23 @@ class DynamicObject(Obstacle):
         self.update_state(action, timestep)
 
 
-    def update_state(self, new_acceleration, timestep):
+    def update_state(self, new_acceleration, timestep): # TODO pyhscally correct update cycle...?
+        # TODO implement steering angle, longitudinal and lateral forces, slip angle...
         self._update_acceleration(new_acceleration)
         self._update_velocity(timestep)
         self._update_position(timestep)
 
     def _update_position(self, timestep):
-        self.position += self.velocity * timestep
+        self.position += self.velocity * timestep + 0.5 * self.acceleration * timestep**2 
 
     def _update_velocity(self, timestep):
-        self.velocity = self.velocity # TODO
+        self.velocity += self.acceleration * timestep # TODO 
 
     def _update_acceleration(self, new_acceleration):
-        self.acceleration = new_acceleration # TODO
+        self.acceleration = np.asarray(new_acceleration) # TODO does asarray rebroadcast if already np.array ?
 
-    def update_patch(self, patch): # TODO really like this or just give the object the patch itself?
-        self.Shape.update_patch(patch, self.position)
+    def update_patch(self, patch): # TODO really like this or just give the object/Shape the patch itself?
+        self.Shape.update_patch(patch, self.position) # TODO needs orientation update
 
 
 from .shapes import *

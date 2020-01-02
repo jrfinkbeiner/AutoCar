@@ -91,9 +91,12 @@ class OrientedRectangle(OrientedShape):
 
     def matplotlib_patch(self, xy, **kwargs):
         xy_min, rot_angle_deg = self._calc_patch_xy_and_angle(xy)
-        return pat.Rectangle(xy=xy_min, width=self.a, height=self.b, angle=rot_angle_deg, **kwargs)
+        patch = pat.Rectangle(xy=xy_min, width=self.a, height=self.b, angle=rot_angle_deg, **kwargs)
+        return patch
 
-    def update_patch(self, patch, xy):
+    def update_patch(self, patch, xy): 
+        # TODO give patch as property
+        # TODO update orientation
         assert type(patch) == pat.Rectangle, f"Expects instance of class matplotlib.patches.Rectangle, got {type(patch)}"
         xy_min, rot_angle_deg = self._calc_patch_xy_and_angle(xy)
         patch.set_xy(xy_min)

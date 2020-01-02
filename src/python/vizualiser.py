@@ -95,7 +95,8 @@ class RunButton(QPushButton):
 
     def run(self):
         if self.isChecked():
-            self.app.StopBtn.toggle()
+            if self.app.StopBtn.isChecked():
+                self.app.StopBtn.toggle()
             self.app.Canvas.start_timer()
 
 
@@ -108,7 +109,8 @@ class StopButton(QPushButton):
 
     def stop(self):
         if self.isChecked():
-            self.app.RunBtn.toggle()
+            if self.app.RunBtn.isChecked():
+                self.app.RunBtn.toggle()
             self.app.Canvas.stop_timer()
 
 class PlotCanvas(FigureCanvas):
@@ -145,11 +147,12 @@ class PlotCanvas(FigureCanvas):
         self._ax.grid()
 
 
-    def _update(self):
-        self.World.run_step()
+    def _update(self): # TODO first update plot or run world step?
         self._update_canvas()
+        self.World.run_step()
 
-    def _update_canvas(self):
+
+    def _update_canvas(self): # TODO more necessary if DynmicObject instances changed (Car disappears, new car appears) and therefore patch instance...
         self.draw() # already enough if patches are changed by world updates!
 
 
@@ -172,7 +175,7 @@ class PlotCanvas(FigureCanvas):
             print(patch)
             self._ax.add_patch(patch)
 
-    def _replot_dynamic_patches(self): # TODO don't add but adjust, actually neccessary as patch should already be changed..?
+    def _replot_dynamic_patches(self): # TODO NOT USED don't add but adjust, actually neccessary as patch should already be changed..?
         for patch in self.World.dynamic_patches.values():
             print(patch)
             self._ax.add_patch(patch)

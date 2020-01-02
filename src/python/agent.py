@@ -1,5 +1,5 @@
 import numpy as np
-
+import time
 
 class Agent(object):
     """
@@ -24,7 +24,7 @@ class Agent(object):
     def determine_action(self, DynamicObj):
         assert type(DynamicObj) == DynamicObject, f"Expects instance of type DynamicObject, got {type(DynamicObj)}"
 
-        acceleration = np.array([0.1, 0.0]) # better: absolute acc val + steering wheel angle
+        acceleration = np.array([1.0, 0.0]) # better: absolute acc val + steering wheel angle
 
         return acceleration
 
