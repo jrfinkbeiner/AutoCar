@@ -23,9 +23,14 @@ class Agent(object):
 
     def determine_action(self, DynamicObj):
         assert type(DynamicObj) == DynamicObject, f"Expects instance of type DynamicObject, got {type(DynamicObj)}"
+        action = {}
+        throttle = 0.0 # better: absolute acc val + steering wheel angle
+        steering_wheel_change = -0.0
 
-        acceleration = np.array([1.0, 0.0]) # better: absolute acc val + steering wheel angle
+        action['throttle'] = throttle
+        action['steering_wheel_change'] = steering_wheel_change
 
-        return acceleration
+        return action
 
-from .world import SquareWorld, DynamicObject # has to be at the end of module due to circular imports
+from .world import SquareWorld # has to be at the end of module due to circular imports
+from .obstacles import DynamicObject

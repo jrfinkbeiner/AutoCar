@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.python.world import SquareWorld, DynamicObject
+from src.python.world import SquareWorld
+from src.python.obstacles import DynamicObject
 from src.python.agent import Agent
 from src.python.shapes import OrientedRectangle
 
@@ -11,17 +12,17 @@ def main():
 
 
 
-    init_pos = [0.5 * SIZE[0], 0.5 * SIZE[1]]
+    init_pos = [0.2 * SIZE[0], 0.5 * SIZE[1]]
 
-    OrientedRect0 = OrientedRectangle(orientation=[-1, -1], a=2.0, b=3.0)
+    OrientedRect0 = OrientedRectangle(orientation=[0, 1], width=2.0, length=3.0)
 
     Car0 = DynamicObject(Shape=OrientedRect0, 
                         initial_position=init_pos, 
-                        initial_velocity=[0.0, 0.0],
+                        initial_velocity=[0.0, 1.0],
                         initial_acceleration=[0.0, 0.0],
                         ControllingAgent=Agent())
 
-    MyWorld = SquareWorld(size=SIZE, timestep=0.5, dynamicObjs=[Car0], online_vizu_bool=True)
+    MyWorld = SquareWorld(size=SIZE, timestep=0.1, dynamicObjs=[Car0], online_vizu_bool=True)
 
     # MyWorld.run(num_steps=100)
 

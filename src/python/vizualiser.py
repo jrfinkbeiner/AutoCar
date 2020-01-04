@@ -16,7 +16,6 @@ class VizuManager(object): # TODO possibly already an
     def __init__(self, World, timestep, title):
         super().__init__()
         self.qapp = QApplication(sys.argv)
-        print(sys.argv)
         self.app = ApplicationWindow(World=World, timestep=timestep, title=title)
         sys.exit(self.qapp.exec_())
 
@@ -152,7 +151,7 @@ class PlotCanvas(FigureCanvas):
         self.World.run_step()
 
 
-    def _update_canvas(self): # TODO more necessary if DynmicObject instances changed (Car disappears, new car appears) and therefore patch instance...
+    def _update_canvas(self): # TODO more necessary if DynamicObject instances changed (new/old DynamicObject appears/disappears) and therefore patch instance...
         self.draw() # already enough if patches are changed by world updates!
 
 
@@ -171,7 +170,6 @@ class PlotCanvas(FigureCanvas):
 
     def _plot_dynamic_patches(self):
         for patch in self.World.dynamic_patches.values():
-            print('HEY')
             print(patch)
             self._ax.add_patch(patch)
 

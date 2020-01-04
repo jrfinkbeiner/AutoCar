@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.patches as pat
 
-
 def rot_mat_from_angle(angle):
     rot_mat = np.array([
                 [ np.cos(angle), np.sin(angle)],
@@ -34,6 +33,7 @@ class Shape(object):
         """
         raise NotImplementedError
 
+
 class OrientedShape(Shape):
     """
     Shpape with information about its orientation.
@@ -43,22 +43,32 @@ class OrientedShape(Shape):
         super().__init__()
         self.orientation = np.asarray(orientation) / np.linalg.norm(orientation)
 
-
-    def _calc_rot_angle(self):
+    def calc_rot_angle(self):
         """
         Calculates rotation angle form orientation tuple.
         """
         rot_angle = -np.arcsin(self.orientation[0])
-        
         if self.orientation[1] < 0:
             if rot_angle < 0: # TODO possibly find nicer/simpler equations?
                 rot_angle = -(np.pi - np.abs(rot_angle))
             else:
                 rot_angle = np.pi - rot_angle
-
         return rot_angle
 
+    @staticmethod
+    def calc_orientation_from_angle(angle):
+        """
+        Calculates orientation tuple form rotation angle (right rotation, non-math way definiton of angle).
+        """
+        orientation = np.array([-np.sin(angle), np.cos(angle)])
+        return orientation
 
+    def orthogonal_orientation(self):
+        """
+        Return orhognal unit-vector to orientation vector.
+        """
+        return np.array([self.orientation[1], -self.orientation[0]])
+                
 
 class Circle(Shape):
     def __init__(self, radius):
@@ -75,23 +85,23 @@ class OrientedCircle(OrientedShape, Circle):
 
 
 class OrientedRectangle(OrientedShape):
-    def __init__(self, orientation, a, b):
+    def __init__(self, orientation, width, length):
         super().__init__(orientation)
-        self.a = a
-        self.b = b
+        self.width = width
+        self.length = length
 
     def _calc_patch_xy_and_angle(self, xy):
-        rot_angle = self._calc_rot_angle()
+        rot_angle = self.calc_rot_angle()
         rot_angle_deg = rot_angle * 180 / np.pi
         inv_rot_mat = inv_rot_mat_from_angle(rot_angle)
 
-        rel_xy_min = np.dot([-0.5*self.a, -0.5*self.b], inv_rot_mat.T)
+        rel_xy_min = np.dot([-0.5*self.width, -0.5*self.length], inv_rot_mat.T)
         xy_min = np.asarray(xy) + rel_xy_min
         return xy_min, rot_angle_deg
 
     def matplotlib_patch(self, xy, **kwargs):
         xy_min, rot_angle_deg = self._calc_patch_xy_and_angle(xy)
-        patch = pat.Rectangle(xy=xy_min, width=self.a, height=self.b, angle=rot_angle_deg, **kwargs)
+        patch = pat.Rectangle(xy=xy_min, width=self.width, height=self.length, angle=rot_angle_deg, **kwargs)
         return patch
 
     def update_patch(self, patch, xy): 
