@@ -142,7 +142,7 @@ class SquareWorld(object):
         """
         Adds an instance of type DynamicObject to dynamicObjs.
         """
-        assert type(obstacle) == DynamicObject, f"Expects instance of type DynamicObject, got {type(obstacle)}."
+        assert isinstance(obstacle, DynamicObject), f"Expects instance of type DynamicObject, got {type(obstacle)}."
         # TODO _check_and_assign_ID
         self.dynamicObjs.append(obstacle)
 
@@ -162,7 +162,7 @@ class SquareWorld(object):
         """
         action_list = []
         for instance in self.dynamicObjs:
-            assert type(instance) == DynamicObject, f"dynamicObjs has to contain only instances of type DynamicObject, got {type(instance)}"
+            assert isinstance(instance, DynamicObject), f"dynamicObjs has to contain only instances of type DynamicObject, got {type(instance)}"
             # TODO
             action = instance.get_action()
             action_list.append((instance, action))

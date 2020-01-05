@@ -22,7 +22,8 @@ class Agent(object):
         self.observable_world = World # TODO reduce to imperfect world, not whole world is known at each timestep
 
     def determine_action(self, DynamicObj):
-        assert type(DynamicObj) == DynamicObject, f"Expects instance of type DynamicObject, got {type(DynamicObj)}"
+        # TODO maybe specify exact dynamic object in agent subclasses
+        assert isinstance(DynamicObj, DynamicObject), f"Expects instance of type DynamicObject, got {type(DynamicObj)}" 
         action = {}
         throttle = 0.0 # better: absolute acc val + steering wheel angle
         steering_wheel_change = -0.0

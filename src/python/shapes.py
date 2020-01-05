@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.patches as pat
+import sys # TODO to be del
 
 def rot_mat_from_angle(angle):
     rot_mat = np.array([
@@ -48,12 +49,16 @@ class OrientedShape(Shape):
         Calculates rotation angle form orientation tuple.
         """
         rot_angle = -np.arcsin(self.orientation[0])
+        print(self.orientation)
+        
         if self.orientation[1] < 0:
             if rot_angle < 0: # TODO possibly find nicer/simpler equations?
                 rot_angle = -(np.pi - np.abs(rot_angle))
             else:
                 rot_angle = np.pi - rot_angle
         return rot_angle
+
+        sys.exit()
 
     @staticmethod
     def calc_orientation_from_angle(angle):

@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from src.python.world import SquareWorld
-from src.python.obstacles import DynamicObject
+from src.python.obstacles import TwoDOFObject
 from src.python.agent import Agent
 from src.python.shapes import OrientedRectangle
 
 
 def main():
-    SIZE = (20,20)
+    SIZE = (40, 40)
 
 
 
@@ -16,9 +16,9 @@ def main():
 
     OrientedRect0 = OrientedRectangle(orientation=[0, 1], width=2.0, length=3.0)
 
-    Car0 = DynamicObject(Shape=OrientedRect0, 
+    Car0 = TwoDOFObject(Shape=OrientedRect0, 
                         initial_position=init_pos, 
-                        initial_velocity=[0.0, 1.0],
+                        initial_velocity=[0.0, 10.0],
                         initial_acceleration=[0.0, 0.0],
                         ControllingAgent=Agent())
 
