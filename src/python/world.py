@@ -22,6 +22,8 @@ class SquareWorld(object):
         
         self.staticObjs = staticObjs
         self.dynamicObjs = dynamicObjs
+        for dynamicObj in self.dynamicObjs:
+            dynamicObj.ControllingAgent.World = self
         self.IDs = []
         self.staticIDs, self.dynamicIDs = self._create_lists_and_assign_IDs()
 
@@ -145,6 +147,8 @@ class SquareWorld(object):
         assert isinstance(obstacle, DynamicObject), f"Expects instance of type DynamicObject, got {type(obstacle)}."
         # TODO _check_and_assign_ID
         self.dynamicObjs.append(obstacle)
+        if obstacle.ControllingAgent.World != self:
+            obstacle.ControllingAgent.World = self
 
 
     def add_static_object(self, obstacle):

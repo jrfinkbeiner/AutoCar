@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from src.python.world import SquareWorld
 from src.python.obstacles import TwoDOFObject
-from src.python.agent import Agent
+from src.python.agent import SimpleAgent
 from src.python.shapes import OrientedRectangle
 
 
@@ -20,7 +20,8 @@ def main():
                         initial_position=init_pos, 
                         initial_velocity=[0.0, 10.0],
                         initial_acceleration=[0.0, 0.0],
-                        ControllingAgent=Agent())
+                        initial_steering_angle=-60.0, 
+                        ControllingAgent=SimpleAgent())
 
     MyWorld = SquareWorld(size=SIZE, timestep=0.1, dynamicObjs=[Car0], online_vizu_bool=True)
 

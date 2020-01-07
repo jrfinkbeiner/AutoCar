@@ -33,14 +33,14 @@ class DynamicObject(Obstacle):
         acceleration : list [float ax, float ay], acceleration of the instance
         ControllingAgent : Agent, agent that takes world and instance state and chooses action to take
     """
-    def __init__(self, Shape, ControllingAgent, initial_position, initial_velocity, initial_acceleration, ID=None):
+    def __init__(self, Shape, ControllingAgent, initial_position, initial_velocity, initial_acceleration, initial_steering_angle, ID=None):
         super().__init__(Shape, initial_position, ID)
         assert isinstance(self.Shape, OrientedShape), f"Expects instance that is child class of OrientedShapes, got {type(self.Shape)}."
         self.acceleration = np.asarray(initial_acceleration)
         self.velocity = np.asarray(initial_velocity)
         self.ControllingAgent = ControllingAgent
-        self.steering_angle = -45 #Shape.calc_rot_angle() * 180 / np.pi
-   
+        self.steering_angle = initial_steering_angle
+           
 
     def get_action(self):
         return self.ControllingAgent.determine_action(self)
@@ -125,10 +125,8 @@ class TwoDOFObject(DynamicObject):
         acceleration : list [float ax, float ay], acceleration of the instance
         ControllingAgent : Agent, agent that takes world and instance state and chooses action to take
     """
-    def __init__(self, Shape, ControllingAgent, initial_position, initial_velocity, initial_acceleration, inital_ID=None):
-        super().__init__(Shape, ControllingAgent, initial_position, initial_velocity, initial_acceleration, inital_ID)
-        
-        self.steering_angle = 0.0
+    def __init__(self, Shape, ControllingAgent, initial_position, initial_velocity, initial_acceleration, initial_steering_angle, inital_ID=None):
+        super().__init__(Shape, ControllingAgent, initial_position, initial_velocity, initial_acceleration, initial_steering_angle, inital_ID)
    
 
     def steering_wheel_to_angle(self, steering_wheel_change): # TODO finetune

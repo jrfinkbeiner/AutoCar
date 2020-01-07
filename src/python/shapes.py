@@ -58,7 +58,6 @@ class OrientedShape(Shape):
                 rot_angle = np.pi - rot_angle
         return rot_angle
 
-        sys.exit()
 
     @staticmethod
     def calc_orientation_from_angle(angle):

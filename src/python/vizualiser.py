@@ -1,7 +1,7 @@
 import sys
 import time
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, qApp, QAction
 from PyQt5.QtGui import QIcon
 
 import numpy as np
@@ -33,6 +33,7 @@ class ApplicationWindow(QMainWindow):
         self.title = title
         self.width = 640
         self.height = 400
+
         self._init_UI(timestep)
 
     def _init_UI(self, timestep):
@@ -42,11 +43,23 @@ class ApplicationWindow(QMainWindow):
         self.Canvas = PlotCanvas(World=self.World, timestep=timestep, parent=self, width=5, height=4)
         self.Canvas.move(0,0)
 
+        self._init_menuBar()
+        
         self._init_ExitButton()
         self._init_RunAndStopButton()
 
         self.show()
 
+
+    def _init_menuBar(self):
+        self.menubar = self.menuBar()
+
+        self.fileMenu = self.menubar.addMenu('&File')
+        exitAct = QAction('&Exit', self) 
+        exitAct.setShortcut('Ctrl+Q')
+        exitAct.setStatusTip('Exit application')
+        exitAct.triggered.connect(self.exit) # TODO delete timer first...
+        self.fileMenu.addAction(exitAct)
 
     def _init_ExitButton(self):
         self.exitButton = QPushButton('Exit', self) # TODO
