@@ -8,7 +8,7 @@ class SquareWorld(object):
     World/Map defined as manly litte squares. 
     Takes
         size : tuple, (len_x, len_y) number of squares for x and y direction
-        scale : float, conversion between squares and length scale (metres)
+        scale : float, squares / meter, conversion between squares and length scale (metres)
         dynamicObjs : list of DynamicObject, initial dynamic objects 
         staticObjs : list of StaticObject, initial static objects 
     """
@@ -16,8 +16,9 @@ class SquareWorld(object):
     def __init__(self, size, scale=1.0, timestep=1.0, dynamicObjs=[], staticObjs=[], online_vizu_bool=True):
         super().__init__()
         self.size = size
-        self.len_y, self.len_x = size
+        self.len_y, self.len_x = size # TODO fucked sth up there....
         self.scale = scale
+        self.len_x_ind, self.len_y_ind = int(self.len_x * scale), int(self.len_y * scale)
         self.timestep = timestep
         
         self.staticObjs = staticObjs
@@ -57,15 +58,16 @@ class SquareWorld(object):
         # print(self.dynamicObjs[0].Shape.orientation)
         
         #self.dynamicObjs[0].Shape.update_patch(self.dynamic_patches[0], self.dynamicObjs[0].position)
+        print('')
         self.update()
         print(self.dynamic_patches[0])
 
     # TODO think about this. Shouldn't it just be a (negative) reward map? Instead of multidim classification map?
     def _create_ground_map(self):
         """
-        Creates world, numpy array of size (self.len_x, self.len_y, 2) defining drivable and non drivable space.
+        Creates world, numpy array of size scale*(self.len_x, self.len_y, 2) defining drivable and non drivable space.
         """
-        ground_map = np.zeros((self.len_x, self.len_y))
+        ground_map = np.zeros((int(self.scale*self.len_x), int(self.scale*self.len_y)))
         ground_map = self._define_drivable_space(ground_map) # TODO think
         # TODO possibly other spaces 
         return ground_map
@@ -75,15 +77,16 @@ class SquareWorld(object):
         """
         Defines areas of drivable space via interactive vizualisation.
         """
-        center_x, center_y = int(self.len_x/2), int(self.len_y/2)
-        ymask, xmask = np.ogrid[0:self.len_y, 0:self.len_y]
+        inds_x = int(self.len_x * self.scale)
+        inds_y = int(self.len_y * self.scale)
+        center_x, center_y = inds_x // 2 , inds_y // 2
+        ymask, xmask = np.ogrid[0:inds_x, 0:inds_y]
 
-        outter_rad = 8
-        inner_rad = 4
+        outter_rad = int(15 * self.scale)
+        inner_rad = int(9 * self.scale)
 
         square_mask = (xmask-center_x<outter_rad)&(xmask-center_x>-outter_rad)&(ymask-center_y<outter_rad)&(ymask-center_y>-outter_rad)
         square_mask[center_y-inner_rad+1:center_y+inner_rad,center_x-inner_rad+1:center_x+inner_rad] = False
-
 
         # circle_mask = (xmask-center_x)**2 + (ymask-center_y)**2 <= 5**2
         # print(circle_mask)

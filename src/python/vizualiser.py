@@ -1,7 +1,7 @@
 import sys
 import time
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, qApp, QAction
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, qApp, QAction, QAbstractButton
 from PyQt5.QtGui import QIcon
 
 import numpy as np
@@ -63,7 +63,7 @@ class ApplicationWindow(QMainWindow):
 
     def _init_ExitButton(self):
         self.exitButton = QPushButton('Exit', self) # TODO
-        self.exitButton.setToolTip('Pressing this button exits and stops the application window') # TODO
+        self.exitButton.setToolTip('Pressing this button exits and stops the application window.') 
         self.exitButton.move(500,0)
         self.exitButton.resize(140,100)
         
@@ -72,16 +72,25 @@ class ApplicationWindow(QMainWindow):
 
     def _init_RunAndStopButton(self):
         self._init_RunButton()
+        self._init_RunStepButton()
         self._init_StopButton()
 
 
     def _init_RunButton(self):
         self.RunBtn = RunButton('Run', self) # TODO
-        self.RunBtn.setToolTip('Pressing this button starts/continues running the world.') # TODO
-        self.RunBtn.move(500,150)
+        self.RunBtn.setToolTip('Pressing this button starts/continues running the world.') 
+        self.RunBtn.move(500,100)
         self.RunBtn.resize(140,100)
     
         self.RunBtn.clicked.connect(self.RunBtn.run)
+
+    def _init_RunStepButton(self):
+        self.RunStepBtn = RunStepButton('Run Step', self) # TODO
+        self.RunStepBtn.setToolTip('Pressing this button evolvs the world one step/iteration.') 
+        self.RunStepBtn.move(500,200)
+        self.RunStepBtn.resize(140,100)
+    
+        self.RunStepBtn.clicked.connect(self.RunStepBtn.run_step)
 
 
     def _init_StopButton(self):
@@ -112,6 +121,23 @@ class RunButton(QPushButton):
             self.app.Canvas.start_timer()
 
 
+
+class RunStepButton(QPushButton):
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.app = parent
+        self.setCheckable(True)
+
+    def run_step(self):
+        if not self.app.StopBtn.isChecked():
+            self.app.StopBtn.stop()
+
+        # if self.app.RunBtn.isChecked():
+        #     self.app.RunBtn.toggle()
+        self.app.Canvas._update()
+        self.toggle()
+
+
 class StopButton(QPushButton):
     def __init__(self, title, parent):
         super().__init__(title, parent)
@@ -123,7 +149,7 @@ class StopButton(QPushButton):
         if self.isChecked():
             if self.app.RunBtn.isChecked():
                 self.app.RunBtn.toggle()
-            self.app.Canvas.stop_timer()
+        self.app.Canvas.stop_timer()
 
 class PlotCanvas(FigureCanvas):
 
@@ -175,7 +201,7 @@ class PlotCanvas(FigureCanvas):
         self.draw()
 
     def _plot_static_canvas(self):
-        self._ax.imshow(self.World.ground_map)
+        self._ax.imshow(self.World.ground_map, extent=[0, self.World.len_y, self.World.len_x, 0]) # , aspect=self.World.scale)
         for patch in self.World.static_patches.values():
             print(patch)
             self._ax.add_patch(patch)

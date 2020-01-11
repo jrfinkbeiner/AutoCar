@@ -103,7 +103,6 @@ class DynamicObject(Obstacle):
     def _update_acceleration(self, action, timestep):
         throttle = action['throttle']
         stearing_wheel_change = action['steering_wheel_change']
-        print('')
         pprint.pprint(action)
 
         self.steering_wheel_to_angle(stearing_wheel_change)
@@ -134,7 +133,7 @@ class TwoDOFObject(DynamicObject):
         Transforms steering_wheel_change to change in steering_angle
             [-1, 1] -> [-15 to 15] , 15 degrees is the maximum change of the steering wheel 
         """
-        self.steering_angle += steering_wheel_change * 15
+        self.steering_angle += steering_wheel_change * 60 # TODO figure this out!!! maybe including timestep...
         if self.steering_angle < -60:
             self.steering_angle = -60
         if self.steering_angle > 60:
@@ -148,7 +147,7 @@ class TwoDOFObject(DynamicObject):
         turn_radius = self.Shape.length / np.sin(self.steering_angle * np.pi / 180)
 
         angle_change = 2 * np.pi * np.linalg.norm(self.velocity) * timestep / (2 * np.pi * turn_radius)
-        angle = self.Shape.calc_rot_angle() + angle_change # TODO don't just add steering angle
+        angle = self.Shape.calc_rot_angle() + angle_change 
 
         orientation = self.Shape.calc_orientation_from_angle(angle) 
         self.Shape.orientation = orientation 
@@ -174,14 +173,14 @@ class TwoDOFObject(DynamicObject):
         self.position += 0.5 * self.acceleration * timestep**2 + self.velocity * timestep
 
     def _update_velocity(self, timestep):
-        self.velocity += self.acceleration * timestep # TODO 
+        self.velocity += self.acceleration * timestep 
 
     def _update_acceleration(self, action, timestep):
         throttle = action['throttle']
         stearing_wheel_change = action['steering_wheel_change']
-        print('')
-        pprint.pprint(action)
 
+        pprint.pprint(action)
+        print(f"steering_angle = {self.steering_angle}")
         self.steering_wheel_to_angle(stearing_wheel_change)
         self._throttle_and_angle_to_acceleration(throttle, timestep)
         print('DONE acc')
