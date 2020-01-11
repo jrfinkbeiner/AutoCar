@@ -41,6 +41,30 @@ class SquareWorld(object):
             self.online_vizu = VizuManager(World=self, timestep=timestep, title='World vizu') #TODO
 
 
+    def save_world(self, folder):
+        """
+        Saves the current state of the world.
+         - Saves the ground map as png titled "map.png"
+         - Saves the static objects as json file titles "static.json"
+         - Saves the dynamic objects as json file titles "dynamic.json"
+        """
+        self.save_map(folder)
+        self.save_static(folder)
+        self.save_dynamic(folder)
+
+
+    def save_map(self, folder):
+        plt.imsave(self.ground_map, os.path.join(folder, 'map.png'))
+
+    def save_static(self, folder):
+        # TODO implement
+        pass
+
+    def save_dynamic(self, folder):
+        # TODO implement
+        pass
+
+
     def run(self, num_steps=None):
         
         if num_steps==None:

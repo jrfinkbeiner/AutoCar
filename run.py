@@ -23,7 +23,7 @@ def main():
                         initial_steering_angle=-60.0, 
                         ControllingAgent=SimpleAgent())
 
-    MyWorld = SquareWorld(size=SIZE, scale=10.0, timestep=0.07, dynamicObjs=[Car0], online_vizu_bool=True)
+    MyWorld = SquareWorld(size=SIZE, scale=10.0, timestep=0.05, dynamicObjs=[Car0], online_vizu_bool=True)
 
     # MyWorld.run(num_steps=100)
 

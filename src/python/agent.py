@@ -143,6 +143,8 @@ class SimpleAgent(Agent):
         map_left_short_30 = self._get_part_of_map((2 * orientation + orientation_left) / 3, (-orientation + 2 * orientation_left) / 3, distance_short, width)
         map_right_short_30 = self._get_part_of_map((2 * orientation + orientation_right) / 3, (orientation + 2 * orientation_left) / 3, distance_short, width)
 
+        map_front_immediate = self._get_part_of_map(orientation, orientation_left, 2.5, width)
+
         throttle = np.tanh(self.optimal_velocity - np.linalg.norm(DynamicObj.velocity))
 
         if np.all(map_front_long == DRIVABLE):
@@ -193,6 +195,12 @@ class SimpleAgent(Agent):
             print('')
             print('VEHICLE IS STUCK!')
             sys.exit()
+
+        if not np.all(map_front_immediate == DRIVABLE):
+            # print('front immediate')
+            # mulipy with 3 to favor large steering wheel changes
+            throttle = np.tanh(self.optimal_velocity * 0.1  - np.linalg.norm(DynamicObj.velocity))
+
 
         return throttle, steering_wheel_change # TODO implement
 
