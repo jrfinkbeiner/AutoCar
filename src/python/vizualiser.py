@@ -1,9 +1,9 @@
 import sys
 import time
-
+import functools
 from typing import Optional, Callable
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, qApp, QAction, QAbstractButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, qApp, QAction, QAbstractButton, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 
 import numpy as np
@@ -33,7 +33,7 @@ class ApplicationWindow(QMainWindow):
         self.left = 10
         self.top = 10
         self.title = title
-        self.width = 640
+        self.width = 740
         self.height = 400
 
         self._init_UI(timestep)
@@ -42,7 +42,7 @@ class ApplicationWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.Canvas = PlotCanvas(World=self.World, timestep=timestep, parent=self, width=5, height=4)
+        self.Canvas = PlotCanvas(World=self.World, timestep=timestep, parent=self, width=8, height=4)
         self.Canvas.move(0,0)
 
         self._init_menuBar()
@@ -73,7 +73,7 @@ class ApplicationWindow(QMainWindow):
     def _init_menuBar(self):
         self.menubar = self.menuBar()
         self._init_fileMenu()
-        # self._init_editMenu() # TODO uncomment
+        self._init_editMenu() # TODO uncomment
         
     # def _init_fileMenu(self):
     #     self.fileMenu = self.menubar.addMenu('&File')
@@ -83,6 +83,7 @@ class ApplicationWindow(QMainWindow):
     #     exitAct.triggered.connect(self.exit) # TODO delete timer first...
     #     self.fileMenu.addAction(exitAct)
     
+
     def _init_fileMenu(self):
         # initialsize menubar titled 'File'
         self.fileMenu = self.menubar.addMenu('&File')
@@ -94,12 +95,12 @@ class ApplicationWindow(QMainWindow):
                                             statusTip='Exit application',
         )
         loadAct = self._define_menu_action(title='&Load map',
-                                            action=self.exit,
+                                            action=self._load_map, #functools.partial(self.World.exit, b=4),
                                             shortcut='Ctrl+L',
                                             statusTip='Load a world map',
         )
-        saveAct = self._define_menu_action(title='&Save map', # TODO really only save map, or whole world?
-                                            action=self.exit,
+        saveAct = self._define_menu_action(title='&Save world', # TODO really only save map, or whole world?
+                                            action=self.World.save_world,
                                             shortcut='Ctrl+S',
                                             statusTip='Save the current world map',
         )
@@ -110,19 +111,19 @@ class ApplicationWindow(QMainWindow):
         self.fileMenu.addAction(saveAct)
          
     def _init_editMenu(self):
-        self.fileMenu = self.menubar.addMenu('&File')
-        modAct = QAction('&Exit', self) 
-        modAct.setShortcut('Ctrl+M')
-        modAct.setStatusTip('Exit application')
-        modAct.triggered.connect(self.exit) # TODO delete timer first...
-        self.fileMenu.addAction(modAct)
+        self.editMenu = self.menubar.addMenu('&Edit')
+        modAct = self._define_menu_action(title='&Modify map',
+                                    action=self.exit, # TODO
+                                    shortcut='Ctrl+M',
+                                    statusTip='Modify the ground map by setting drivable space.',
+        )
+        self.editMenu.addAction(modAct)
  
-
 
     def _init_ExitButton(self):
         self.exitButton = QPushButton('Exit', self) # TODO
         self.exitButton.setToolTip('Pressing this button exits and stops the application window.') 
-        self.exitButton.move(500,0)
+        self.exitButton.move(600,0)
         self.exitButton.resize(140,100)
         
         self.exitButton.clicked.connect(self.exit)
@@ -137,7 +138,7 @@ class ApplicationWindow(QMainWindow):
     def _init_RunButton(self):
         self.RunBtn = RunButton('Run', self)
         self.RunBtn.setToolTip('Pressing this button starts/continues running the world.') 
-        self.RunBtn.move(500,100)
+        self.RunBtn.move(600,100)
         self.RunBtn.resize(140,100)
     
         self.RunBtn.clicked.connect(self.RunBtn.run)
@@ -145,7 +146,7 @@ class ApplicationWindow(QMainWindow):
     def _init_RunStepButton(self):
         self.RunStepBtn = RunStepButton('Run Step', self) 
         self.RunStepBtn.setToolTip('Pressing this button evolvs the world one step/iteration.') 
-        self.RunStepBtn.move(500,200)
+        self.RunStepBtn.move(600,200)
         self.RunStepBtn.resize(140,100)
     
         self.RunStepBtn.clicked.connect(self.RunStepBtn.run_step)
@@ -154,7 +155,7 @@ class ApplicationWindow(QMainWindow):
     def _init_StopButton(self):
         self.StopBtn = StopButton('Stop', self) 
         self.StopBtn.setToolTip('Pressing this button stops running the world.') 
-        self.StopBtn.move(500,300)
+        self.StopBtn.move(600,300)
         self.StopBtn.resize(140,100)
 
         self.StopBtn.clicked.connect(self.StopBtn.stop)
@@ -163,6 +164,19 @@ class ApplicationWindow(QMainWindow):
         self.Canvas.stop_timer()
         del self.Canvas._timer # TODO somehow properly delete timer before self.close()
         self.close()
+
+
+    def _decide_folder(self): # TODO implement
+        folder = self.World.default_folder
+        return folder
+
+
+    def _load_map(self):
+        folder = self._decide_folder()
+        self.World.load_map(folder=folder)
+        self.Canvas.plot_canvas()
+
+
 
 
 
@@ -209,9 +223,10 @@ class StopButton(QPushButton):
                 self.app.RunBtn.toggle()
         self.app.Canvas.stop_timer()
 
+
 class PlotCanvas(FigureCanvas):
 
-    def __init__(self, World, timestep, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, World, timestep, parent=None, width=4, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         super().__init__(figure=fig)
         self.setParent(parent)
@@ -221,18 +236,14 @@ class PlotCanvas(FigureCanvas):
         self._init_axis()
         self.plot_canvas()
 
-
         self._timer = self.new_timer(
             self.timestep, [(self._update, (), {})])
-
 
     def start_timer(self):
         self._timer.start()
 
-
     def stop_timer(self):
         self._timer.stop()
-        
 
     def _init_axis(self):
         self.setSizePolicy( # TODO what is this ?
@@ -242,20 +253,16 @@ class PlotCanvas(FigureCanvas):
         self._ax = self.figure.subplots(1)
         self._ax.grid()
 
-
     def _update(self): # TODO first update plot or run world step?
         self._update_canvas()
         self.World.run_step()
 
-
     def _update_canvas(self): # TODO more necessary if DynamicObject instances changed (new/old DynamicObject appears/disappears) and therefore patch instance...
         self.draw() # already enough if patches are changed by world updates!
-
 
     def plot_canvas(self):
         self._plot_static_canvas()
         self._plot_dynamic_patches()
-        # TODO difference in self.draw() and specifying draw of each axis?
         self.draw()
 
     def _plot_static_canvas(self):
@@ -263,7 +270,6 @@ class PlotCanvas(FigureCanvas):
         for patch in self.World.static_patches.values():
             print(patch)
             self._ax.add_patch(patch)
-
 
     def _plot_dynamic_patches(self):
         for patch in self.World.dynamic_patches.values():

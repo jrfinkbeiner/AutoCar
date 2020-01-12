@@ -194,7 +194,7 @@ class SimpleAgent(Agent):
         else:
             print('')
             print('VEHICLE IS STUCK!')
-            sys.exit()
+            # sys.exit() # TODO uncomment or do sth different, stop timer, ...
 
         if not np.all(map_front_immediate == DRIVABLE):
             # print('front immediate')
