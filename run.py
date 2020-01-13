@@ -14,16 +14,16 @@ def main():
 
     init_pos = [0.2 * SIZE[0], 0.5 * SIZE[1]]
 
-    OrientedRect0 = OrientedRectangle(orientation=[0, 1], width=2.0, length=3.0)
+    OrientedRect0 = OrientedRectangle(orientation=[0.05, -1], width=2.0, length=3.0)
 
     Car0 = TwoDOFObject(Shape=OrientedRect0, 
                         initial_position=init_pos, 
-                        initial_velocity=[0.0, 10.0],
+                        initial_velocity=[0.0, -5.0],
                         initial_acceleration=[0.0, 0.0],
                         initial_steering_angle=-60.0, 
                         ControllingAgent=SimpleAgent())
 
-    MyWorld = SquareWorld(size=SIZE, scale=10.0, timestep=0.05, dynamicObjs=[Car0], online_vizu_bool=True)
+    MyWorld = SquareWorld(size=SIZE, scale=20.0, timestep=0.1, dynamicObjs=[Car0], online_vizu_bool=True)
 
     # MyWorld.run(num_steps=100)
 

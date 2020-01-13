@@ -132,9 +132,9 @@ class SquareWorld(object):
     # TODO think about this. Shouldn't it just be a (negative) reward map? Instead of multidim classification map?
     def _create_ground_map(self):
         """
-        Creates world, numpy array of size scale*(self.len_x, self.len_y, 2) defining drivable and non drivable space.
+        Creates world, numpy array of size scale*(len_y, len_x) defining drivable and non drivable space.
         """
-        ground_map = np.zeros((int(self.scale*self.len_x), int(self.scale*self.len_y)), dtype=int)
+        ground_map = np.zeros((int(self.scale*self.len_y), int(self.scale*self.len_x)), dtype=int)
         ground_map = self._define_drivable_space(ground_map) # TODO think
         # TODO possibly other spaces 
         return ground_map
@@ -147,7 +147,7 @@ class SquareWorld(object):
         inds_x = int(self.len_x * self.scale)
         inds_y = int(self.len_y * self.scale)
         center_x, center_y = inds_x // 2 , inds_y // 2
-        ymask, xmask = np.ogrid[0:inds_x, 0:inds_y]
+        ymask, xmask = np.ogrid[0:inds_y, 0:inds_x]
 
         outter_rad = int(15 * self.scale)
         inner_rad = int(9 * self.scale)

@@ -3,8 +3,9 @@ import time
 import functools
 from typing import Optional, Callable
 
+from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton, qApp, QAction, QAbstractButton, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QMouseEvent
 
 import numpy as np
 
@@ -24,7 +25,7 @@ class VizuManager(object): # TODO possibly already an
         
     
 
-class ApplicationWindow(QMainWindow):
+class ApplicationWindow(QMainWindow, QWidget):
 
     def __init__(self, World, timestep, title):
         super().__init__()
@@ -176,6 +177,23 @@ class ApplicationWindow(QMainWindow):
         self.World.load_map(folder=folder)
         self.Canvas.plot_canvas()
 
+    def mouseMoveEvent(self, e: QMouseEvent):
+        self._endPos = e.pos() - self._startPos
+        self.move(self.pos() + self._endPos)
+        print('mouseMoveEvent')
+
+    def mousePressEvent(self, e: QMouseEvent):
+        if e.button() == Qt.LeftButton:
+            self._isTracking = True
+            self._startPos = QPoint(e.x(), e.y())
+        print('mousePressEvent')
+
+    def mouseReleaseEvent(self, e: QMouseEvent):
+        if e.button() == Qt.LeftButton:
+            self._isTracking = False
+            self._startPos = None
+            self._endPos = None
+        print('mouseReleaseEvent')
 
 
 
