@@ -46,17 +46,23 @@ class OrientedShape(Shape):
 
     def calc_rot_angle(self):
         """
+        Calculates rotation angle form orientation tuple of this Shape instance.
+        """
+        return self.calc_angle_from_orientation(self.orientation)
+
+    @staticmethod
+    def calc_angle_from_orientation(orientation):
+        """
         Calculates rotation angle form orientation tuple.
         """
-        rot_angle = -np.arcsin(self.orientation[0])
+        rot_angle = -np.arcsin(orientation[0])
         
-        if self.orientation[1] < 0:
+        if orientation[1] < 0:
             if rot_angle < 0: # TODO possibly find nicer/simpler equations?
                 rot_angle = -(np.pi - np.abs(rot_angle))
             else:
                 rot_angle = np.pi - rot_angle
         return rot_angle
-
 
     @staticmethod
     def calc_orientation_from_angle(angle):
