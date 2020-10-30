@@ -300,9 +300,6 @@ class PlotCanvas(FigureCanvas):
             self._ax.add_patch(patch)
 
 
-
-# from world import SquareWorld
-
 if __name__ == '__main__':
     qapp = QApplication(sys.argv)
     print(sys.argv)

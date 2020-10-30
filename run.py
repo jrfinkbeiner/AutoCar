@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.python.world import SquareWorld
-from src.python.obstacles import TwoDOFObject
-from src.python.agents.agent import SimpleAgent, RayAgent
-from src.python.shapes import OrientedRectangle
+from autocar.python.world import SquareWorld
+from autocar.python.obstacles import TwoDOFObject
+from autocar.python.agents.agent import SimpleAgent, RayAgent
+from autocar.python.shapes import OrientedRectangle
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     init_pos1 = [0.8 * SIZE[0], 0.5 * SIZE[1]]
 
     OrientedRect0 = OrientedRectangle(orientation=[0., 1], width=2.0, length=3.0)
-    OrientedRect1 = OrientedRectangle(orientation=[0.05, -1], width=2.0, length=3.0)
+    OrientedRect1 = OrientedRectangle(orientation=[0., -1], width=1.5, length=2.0)
 
 
     Car0 = TwoDOFObject(Shape=OrientedRect0, 
@@ -23,16 +23,16 @@ def main():
                         initial_velocity=[0.0, 5.0],
                         initial_acceleration=[0.0, 0.0],
                         initial_steering_angle=-60.0, 
-                        ControllingAgent=RayAgent(num_rays=5))
+                        ControllingAgent=SimpleAgent(optimal_velocity=5.0)) #RayAgent(num_rays=5))
 
     Car1 = TwoDOFObject(Shape=OrientedRect1, 
                         initial_position=init_pos1, 
-                        initial_velocity=[0.0, -5.0],
+                        initial_velocity=[0.0, -10.0],
                         initial_acceleration=[0.0, 0.0],
-                        initial_steering_angle=-60.0, 
-                        ControllingAgent=SimpleAgent())
+                        initial_steering_angle=0.0, 
+                        ControllingAgent=SimpleAgent(optimal_velocity=10.0))
 
-    MyWorld = SquareWorld(size=SIZE, scale=20.0, timestep=0.1, dynamicObjs=[Car1], online_vizu_bool=True)
+    MyWorld = SquareWorld(size=SIZE, scale=20.0, timestep=0.1, dynamicObjs=[Car0, Car1], online_vizu_bool=True)
 
     # MyWorld.run(num_steps=100)
 

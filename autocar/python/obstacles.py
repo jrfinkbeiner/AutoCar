@@ -3,6 +3,8 @@ from scipy.integrate import RK23, RK45
 import pprint
 import sys # TODO to be del
 
+from autocar.python.shapes import *
+
 class Obstacle(object):
     def __init__(self, Shape, initial_position, ID=None):
         super().__init__()
@@ -247,7 +249,3 @@ class ThreeDOFObject(DynamicObject):
 
     def _solve_via_RK45(self):
         pass
-
-
-
-from .shapes import *

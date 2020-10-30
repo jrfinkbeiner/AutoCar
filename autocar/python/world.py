@@ -9,6 +9,9 @@ try:
 except ModuleNotFoundError:
     import pickle
 
+from autocar.python.vizualiser import VizuManager
+from autocar.python.obstacles import StaticObject, DynamicObject
+
 
 class SquareWorld(object):
     """
@@ -316,9 +319,3 @@ class SquareWorld(object):
 
     def obstacle_matplotlib_patches(self):
         return self.static_patches.values(), self.dynamic_patches.values()
-
-
-
-
-from .vizualiser import VizuManager
-from .obstacles import StaticObject, DynamicObject

@@ -4,6 +4,9 @@ import sys
 import scipy
 import pprint
 
+from autocar.python.world import SquareWorld # has to be at the end of module due to circular imports
+from autocar.python.obstacles import DynamicObject
+
 BACKGROUND = 0
 DRIVABLE = 1
 
@@ -56,9 +59,9 @@ class Agent(object):
 
 
 class SimpleAgent(Agent):
-    def __init__(self, World=None, initial_position=None):
+    def __init__(self, optimal_velocity: float = 5.0, World=None, initial_position=None):
         super().__init__(World, initial_position)
-        self.optimal_velocity = 5 # TODO set optimal velocity, later possibly by adjusting to world state
+        self.optimal_velocity = optimal_velocity # TODO set optimal velocity, later possibly by adjusting to world state
 
     def _observe_world(self):
         assert isinstance(self.World, SquareWorld), f"Expects instance of type SquareWorld, got {type(self.World)}"
@@ -374,5 +377,3 @@ class RayAgent(Agent):
 
 
 
-from .world import SquareWorld # has to be at the end of module due to circular imports
-from .obstacles import DynamicObject
