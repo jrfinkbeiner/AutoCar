@@ -344,10 +344,7 @@ class RayAgent(Agent):
         return distance
 
 
-
-
     def _determine_throttle_and_angle(self, DynamicObj): # TODO MUCH optimization possible, both in comupte performace as in behavior
-        current_steering_angle = DynamicObj.steering_angle
         orientation = DynamicObj.Shape.orientation
 
         orientation_angle = DynamicObj.Shape.calc_angle_from_orientation(orientation)
@@ -358,18 +355,20 @@ class RayAgent(Agent):
         max_distances = np.ones((self.num_rays))*self.max_distance 
 
         distances = list(map(self._get_drivable_distance, ray_orientations, max_distances))
-        
-        print('ray_angles')
-        print(ray_angles)
-        print('ray_orientations')
-        print(np.array(ray_orientations))
-        print('distances')
-        print(distances)
-        throttle, steering_wheel_change = 0.0, 0.0
+                
+        # print('ray_angles')
+        # print(ray_angles)
+        # print('ray_orientations')
+        # print(np.array(ray_orientations))
+        # print('distances')
+        # print(distances)
+        throttle, steering_wheel_change = self._get_throttle_and_angle(DynamicObj, distances)
 
-        return throttle, steering_wheel_change # TODO implement
+        return throttle, steering_wheel_change
 
 
+    def  _get_throttle_and_angle(self, DynamicObj, distances):
+        raise NotImplementedError
 
 
 

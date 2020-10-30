@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from src.python.world import SquareWorld
 from src.python.obstacles import TwoDOFObject
-from src.python.agent import SimpleAgent, RayAgent
+from src.python.agents.agent import SimpleAgent, RayAgent
 from src.python.shapes import OrientedRectangle
 
 
