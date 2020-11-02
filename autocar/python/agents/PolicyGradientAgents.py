@@ -1,10 +1,11 @@
 import numpy as np
-from abc import ABCMeta
+from abc import ABC
 
 from agent import RayAgent
 
+# TODO not implemented yet
 
-class PolicyGradientAgent(ABCMeta):
+class PolicyGradientAgent(ABC):
     def __init__(self):
         super().__init__()
 

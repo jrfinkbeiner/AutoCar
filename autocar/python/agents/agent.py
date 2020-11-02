@@ -13,7 +13,7 @@ DRIVABLE = 1
 class Agent(object):
     """
     Agent that acts in World.
-        initial_position : tuple of floates, intitail position in World in metres
+        initial_position : tuple of floates, intitail position in World
 
     """
     def __init__(self, World=None, initial_position=None):
@@ -43,7 +43,6 @@ class Agent(object):
 
         raise NotImplementedError
 
-
     @staticmethod
     def line_connection(x, point_left, point_right, xmin, ymin):
         m = (point_right[1] - point_left[1]) / (point_right[0] - point_left[0])
@@ -55,7 +54,6 @@ class Agent(object):
         # print(m, c, x0)
         # print(x-x0)
         return (x-x0) * m + c 
-
 
 
 class SimpleAgent(Agent):
@@ -282,8 +280,6 @@ class RayAgent(Agent):
         action['steering_wheel_change'] = steering_wheel_change
         return action
     
-
-
     def _get_drivable_distance(self, orientation, max_distance): 
         ground_map = self.World.ground_map
         position = self.position
