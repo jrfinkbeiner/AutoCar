@@ -14,7 +14,6 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 
-
 class VizuManager(object): # TODO possibly already an 
     def __init__(self, World, timestep, title):
         super().__init__()
@@ -22,8 +21,6 @@ class VizuManager(object): # TODO possibly already an
         self.app = ApplicationWindow(World=World, timestep=timestep, title=title)
         sys.exit(self.qapp.exec_())
 
-        
-    
 
 class ApplicationWindow(QMainWindow, QWidget):
 
@@ -52,7 +49,6 @@ class ApplicationWindow(QMainWindow, QWidget):
         self._init_RunAndStopButton()
 
         self.show()
-
 
     def _define_menu_action(self, 
                             title: str,
@@ -84,7 +80,6 @@ class ApplicationWindow(QMainWindow, QWidget):
     #     exitAct.triggered.connect(self.exit) # TODO delete timer first...
     #     self.fileMenu.addAction(exitAct)
     
-
     def _init_fileMenu(self):
         # initialsize menubar titled 'File'
         self.fileMenu = self.menubar.addMenu('&File')
@@ -196,8 +191,6 @@ class ApplicationWindow(QMainWindow, QWidget):
         print('mouseReleaseEvent')
 
 
-
-
 class RunButton(QPushButton):
     def __init__(self, title, parent):
         super().__init__(title, parent)
@@ -209,7 +202,6 @@ class RunButton(QPushButton):
             if self.app.StopBtn.isChecked():
                 self.app.StopBtn.toggle()
             self.app.Canvas.start_timer()
-
 
 
 class RunStepButton(QPushButton):
@@ -303,5 +295,5 @@ class PlotCanvas(FigureCanvas):
 if __name__ == '__main__':
     qapp = QApplication(sys.argv)
     print(sys.argv)
-    app = ApplicationWindow(World='World', title='title') # TODO
+    app = ApplicationWindow(World='World', timestep=0.01, title='title') # TODO
     sys.exit(qapp.exec_())
